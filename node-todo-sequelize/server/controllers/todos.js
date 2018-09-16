@@ -1,4 +1,5 @@
 const Todo = require('../models').Todos;
+const TodosItem = require('../models').TodosItem;
 
 module.exports = {
 	create(req, res) {
@@ -11,8 +12,31 @@ module.exports = {
 	},
 	list(req, res){
 		return Todo
-		.all()
+		.findAll({
+			include: [{
+				model: TodosItem,
+				as: 'todoitems',
+			}],
+		})
 		.then(todo => res.status(200).send(todo))
 		.catch(error => res.status(400).send(error))
 	},
+	retrieve(req, res) {
+    return Todo
+    .findById(req.params.todoId, {
+      include: [{
+        model: TodosItem,
+        as: 'todoItems',
+      }],
+    })
+    .then(todo => {
+      if (!todo) {
+        return res.status(200).send({
+          message: 'Todo Not Found',
+        });
+      }
+      return res.status(200).send(todo);
+    })
+    .catch(error => res.status(400).send(error));
+},
 };
