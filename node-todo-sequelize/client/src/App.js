@@ -1,80 +1,68 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import React, { Component } from "react";
+import TodoItems from "./TodoItems";
+import "./TodoList.css"
+ 
 class App extends Component {
-
-  state = {todos: [], todoItem: ''}
-  
+	
+  state = { todos : [] };
   constructor(props)
   {
 	  super(props);
-	   this.handleChange = this.handleChange.bind(this);
-       this.handleSubmit = this.handleSubmit.bind(this);
-	   this.handleDeleteToDO = this.handleDeleteToDO.bind(this);
+	  this.addTodo = this.addTodo.bind(this);
+	  this.deleteItem = this.deleteItem.bind(this);
   }
-
+  
   componentDidMount() {
     fetch('/api/todos')
       .then(res => res.json())
       .then(todosNew => this.setState({ todos: todosNew }));
   }
   
-  handleChange(event) {
-   
-  }
-
-  handleSubmit(event) {
-    const data = new FormData(event.target);
+  
+  addTodo(e)
+  {
+	const data = new FormData(e.target);
     fetch('/api/todos', {
     method: 'POST',
     headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
     },
-  body: JSON.stringify({
+    body: JSON.stringify({
     title: data.get("title"),
-  })
-})
-fetch('/api/todos')
+    })
+   })
+   fetch('/api/todos')
       .then(res => res.json())
-      .then(todosNew => this.setState({ todos: todosNew }));
-  
+      .then(todosNew => this.setState({ todos: todosNew })); 
   }
   
-  handleDeleteToDO(todoid,e)
+  
+  deleteItem(todoid)
   {
 	  fetch('/api/todos/' +todoid+ '/delete');
 	  fetch('/api/todos')
       .then(res => res.json())
       .then(todosNew => this.setState({ todos: todosNew }));
-  
   }
-  
   
   render() {
     return (
-      <div className="App">
-	  <form onSubmit={this.handleSubmit}>
-	  <br/> <br/>
-        <label>
-          Enter Todo item: <input type="text"  id = "title" name = "title"/>
-        </label>
-        <input type="submit" value="Submit" />
-      </form>
-        <h1>Todos</h1>
-		<ul>
-        {this.state.todos.map(todo =>
-        <form onSubmit={(e) => this.handleDeleteToDO(todo.id, e)}>
-        <li key = {todo.id} > {todo.title} </li> 
-        <input type="submit" value="Delete" />
-      </form>
-	
-        )}
-		</ul>
+      <div className="todoListMain">
+        <div className="header">
+          <form onSubmit = {this.addTodo}>
+            <input placeholder="enter task" name = "title">
+            </input>
+            <button type="submit">add</button>
+          </form>
+        </div>
+       <TodoItems entries={this.state.todos}
+	              delete={this.deleteItem}/>
       </div>
     );
   }
 }
+ 
+
 
 export default App;
